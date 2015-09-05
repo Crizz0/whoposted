@@ -1,0 +1,8 @@
+services:
+    crizzo.whoposted.listener:
+        class: crizzo\whoposted\event\listener
+        arguments:
+            - @user
+            - @template
+        tags:
+            - { name: event.listener }

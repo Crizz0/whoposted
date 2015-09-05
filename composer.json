@@ -1,0 +1,26 @@
+{
+	"name": "crizzo/whoposted",
+	"type": "phpbb-extension",
+	"description": "",
+	"homepage": "https://github.com/crizzo",
+	"version": "1.0.0",
+	"time": "2015-09-20",
+	"license": "GPL-2.0",
+	"authors": [
+		{
+			"name": "Christian Schnegelberger",
+			"email": "kontakt@crizzo.de",
+			"homepage": "http://www.crizzo.de",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.3.3"
+	},
+	"extra": {
+		"display-name": "Who Posted In This Topic",
+		"soft-require": {
+			"phpbb/phpbb": ">=3.1.6"
+		}
+	}
+}
