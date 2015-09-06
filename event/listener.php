@@ -24,16 +24,20 @@ class listener implements EventSubscriberInterface
 
 	/** @var \phpbb\user */
 	protected $user;
+	
+	/** @var \phpbb\db\driver\driver_interface */
+	protected $db;
 
 	/**
 	* Constructor
 	*
 	* @param \phpbb\user $user, \phpbb\template\template $template
 	*/
-	public function __construct(\phpbb\user $user, \phpbb\template\template $template)
+	public function __construct(\phpbb\user $user, \phpbb\template\template $template, \phpbb\db\driver\driver_interface $db)
 	{
 		$this->user = $user;
 		$this->template = $template;
+		$this->db = $db;
 
 		$this->user->add_lang_ext('crizzo/whoposted', 'whoposted');
 	}
@@ -70,6 +74,23 @@ class listener implements EventSubscriberInterface
 		// 6. als overlay wie bei Mark Forum Read ausgeben o.ä.
 		
 		$topic_row = $event['topic_row'];
+		
+		$topic_id = $topic_row['TOPIC_ID'];
+		
+		
+		$sql = 'SELECT COUNT(post_id) AS posts, poster_id
+		FROM phpbb_posts
+		WHERE topic_id = ' . (int) $topic_id . '
+		GROUP BY poster_id
+		ORDER BY posts DESC';
+		
+		$result = $this->db->sql_query_limit($sql, 5);
+
+		while($row=$this->db->sql_fetchrow($result)) {
+			var_dump($row);
+		}
+
+		$this->db->sql_freeresult($result);
 
 		$topic_row['REPLIES'] =  '<a href="#">' . $topic_row['REPLIES'] . '</a>';
 
