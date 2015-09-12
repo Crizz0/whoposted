@@ -29,18 +29,20 @@ class listener implements EventSubscriberInterface
 	protected $db;
 	/**  */
 	protected $root_path;
-
+	/** @var string phpEx */
+	protected $php_ext;
 	/**
 	* Constructor
 	*
 	* @param \phpbb\user $user, \phpbb\template\template $template
 	*/
-	public function __construct(\phpbb\user $user, \phpbb\template\template $template, \phpbb\db\driver\driver_interface $db, $root_path)
+	public function __construct(\phpbb\user $user, \phpbb\template\template $template, \phpbb\db\driver\driver_interface $db, $root_path, $php_ext)
 	{
 		$this->user = $user;
 		$this->template = $template;
 		$this->db = $db;
 		$this->root_path = $root_path;
+		$this->php_ext = $php_ext;
 
 		$this->user->add_lang_ext('crizzo/whoposted', 'whoposted');
 	}
@@ -78,22 +80,21 @@ class listener implements EventSubscriberInterface
 		
 		$topic_id = $topic_row['TOPIC_ID'];
 
-		$sql = 'SELECT COUNT(post_id) AS posts, poster_id
-		FROM phpbb_posts
-		WHERE topic_id = ' . (int) $topic_id . '
-		GROUP BY poster_id
+		$sql = 'SELECT COUNT(p.post_id) AS posts, p.poster_id, u.username, u.user_colour
+		FROM phpbb_posts p, phpbb_users u
+		WHERE p.topic_id = ' . (int) $topic_id . '
+		AND p.poster_id = u.user_id
+		GROUP BY p.poster_id
 		ORDER BY posts DESC';
 
 		$result = $this->db->sql_query_limit($sql, 5);
 
 		while($row=$this->db->sql_fetchrow($result)) {
 			var_dump($row);
-			//$post_author_id = $row['poster_id'];
-			$poster_id = $row['poster_id'];
 			$post_count = $row['posts'];
 
-			$display_username = get_username_string('full', $poster_id, $row['username'], $row['user_colour'], $row['post_username']);
-			echo $display_username . 'with ' . $post_count . 'posts<br />';
+			$display_username = get_username_string('full', $row['poster_id'], $row['username'], $row['user_colour']);
+			echo $display_username . ' with ' . $post_count . 'posts<br />';
 		}
 
 		$this->db->sql_freeresult($result);
