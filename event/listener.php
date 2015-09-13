@@ -75,9 +75,9 @@ class listener implements EventSubscriberInterface
 		}
 		// 1. output each line with user + post-count
 		// 2. output in "inline-popup" like in "mark posts read"
-		
+
 		$topic_row = $event['topic_row'];
-		
+
 		$topic_id = $topic_row['TOPIC_ID'];
 
 		$sql = 'SELECT COUNT(p.post_id) AS posts, p.poster_id, u.username, u.user_colour
@@ -90,17 +90,30 @@ class listener implements EventSubscriberInterface
 		$result = $this->db->sql_query_limit($sql, 5);
 
 		while($row=$this->db->sql_fetchrow($result)) {
-			var_dump($row);
+			//var_dump($row);
 			$post_count = $row['posts'];
 
 			$display_username = get_username_string('full', $row['poster_id'], $row['username'], $row['user_colour']);
-			echo $display_username . ' with ' . $post_count . 'posts<br />';
+			echo $display_username . ' with ' . $post_count . ' posts<br />';
 		}
 
 		$this->db->sql_freeresult($result);
 
-		$topic_row['REPLIES'] =  '<a href="#">' . $topic_row['REPLIES'] . '</a>';
+		$sql_forum_id = 'SELECT forum_id
+		FROM phpbb_posts
+		WHERE topic_id = ' . (int) $topic_id;
 
-		$event['topic_row'] = $topic_row; 
+		$result_forum_id = $this->db->sql_query_limit($sql_forum_id, 5);
+
+		while($row2=$this->db->sql_fetchrow($result_forum_id)) {
+			var_dump($row2);
+			$forum_id = $row2['forum_id'];
+		}
+
+		$whoposted_url = ($this->user->data['is_registered']) ? append_sid($this->root_path . "viewforum.$this->php_ext", "f=$forum_id&amp;whoposted=" . $topic_id) : '';
+
+		$topic_row['REPLIES'] =  '<a href='. $whoposted_url . '>' . $topic_row['REPLIES'] . '</a>';
+
+		$event['topic_row'] = $topic_row;
 	}
 }
