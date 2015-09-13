@@ -27,14 +27,16 @@ class listener implements EventSubscriberInterface
 	
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
-	/**  */
+
+	/* @var string phpBB root path */
 	protected $root_path;
+
 	/** @var string phpEx */
 	protected $php_ext;
 	/**
 	* Constructor
 	*
-	* @param \phpbb\user $user, \phpbb\template\template $template
+	* @param \phpbb\user $user, \phpbb\template\template $template, \phpbb\db\driver\driver_interface $db, $root_path, $php_ext
 	*/
 	public function __construct(\phpbb\user $user, \phpbb\template\template $template, \phpbb\db\driver\driver_interface $db, $root_path, $php_ext)
 	{
@@ -60,44 +62,11 @@ class listener implements EventSubscriberInterface
 			'core.viewforum_modify_topicrow'	=> 'modify_replies',
 		);
 	}
-	/**
-	 * Changes the regex replacement for second pass
-	 *
-	 * @param object $event
-	 * @return null
-	 * @access public
-	 */
+
 	public function modify_replies($event)
 	{
-		if (!function_exists('get_username_string'))
-		{
-			include($this->root_path . 'includes/functions_content.' . $this->php_ext);
-		}
-		// 1. output each line with user + post-count
-		// 2. output in "inline-popup" like in "mark posts read"
-
 		$topic_row = $event['topic_row'];
-
 		$topic_id = $topic_row['TOPIC_ID'];
-
-		$sql = 'SELECT COUNT(p.post_id) AS posts, p.poster_id, u.username, u.user_colour
-		FROM phpbb_posts p, phpbb_users u
-		WHERE p.topic_id = ' . (int) $topic_id . '
-		AND p.poster_id = u.user_id
-		GROUP BY p.poster_id
-		ORDER BY posts DESC';
-
-		$result = $this->db->sql_query_limit($sql, 5);
-
-		while($row=$this->db->sql_fetchrow($result)) {
-			//var_dump($row);
-			$post_count = $row['posts'];
-
-			$display_username = get_username_string('full', $row['poster_id'], $row['username'], $row['user_colour']);
-			echo $display_username . ' with ' . $post_count . ' posts<br />';
-		}
-
-		$this->db->sql_freeresult($result);
 
 		$sql_forum_id = 'SELECT forum_id
 		FROM phpbb_posts
@@ -110,10 +79,38 @@ class listener implements EventSubscriberInterface
 			$forum_id = $row2['forum_id'];
 		}
 
-		$whoposted_url = ($this->user->data['is_registered']) ? append_sid($this->root_path . "viewforum.$this->php_ext", "f=$forum_id&amp;whoposted=" . $topic_id) : '';
-
-		$topic_row['REPLIES'] =  '<a href='. $whoposted_url . '>' . $topic_row['REPLIES'] . '</a>';
-
+		if($this->user->data['is_registered']) {
+			$whoposted_url = append_sid($this->root_path . "viewforum.$this->php_ext", "f=$forum_id&amp;whoposted=" . $topic_id);
+			$topic_row['REPLIES'] = '<a href=' . $whoposted_url . '>' . $topic_row['REPLIES'] . '</a>';
+		}
 		$event['topic_row'] = $topic_row;
 	}
+	/*
+	 * public function whopost() {
+    if (!function_exists('get_username_string'))
+    {
+        include($this->root_path . 'includes/functions_content.' . $this->php_ext);
+    }
+
+
+    $sql = 'SELECT COUNT(p.post_id) AS posts, p.poster_id, u.username, u.user_colour
+		FROM phpbb_posts p, phpbb_users u
+		WHERE p.topic_id = ' . (int) $topic_id . '
+		AND p.poster_id = u.user_id
+		GROUP BY p.poster_id
+		ORDER BY posts DESC';
+
+    $result = $this->db->sql_query_limit($sql, 5);
+
+    while($row=$this->db->sql_fetchrow($result)) {
+        //var_dump($row);
+        $post_count = $row['posts'];
+
+        $display_username = get_username_string('full', $row['poster_id'], $row['username'], $row['user_colour']);
+        echo $display_username . ' with ' . $post_count . ' posts<br />';
+    }
+
+    $this->db->sql_freeresult($result);
+}
+	 */
 }
