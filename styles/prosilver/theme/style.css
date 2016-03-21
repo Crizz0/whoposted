@@ -1,0 +1,67 @@
+.whoposted_output {
+	background-color: #FFFFFF;
+	border-color: #999999;
+}
+.whoposted_output .alert_close {
+	background-image: url("./images/alert_close.png");
+}
+
+.whoposted_output {
+	border: 1px solid transparent;
+	display: none;
+	left: 0;
+	padding: 0 25px 20px 25px;
+	position: fixed;
+	right: 0;
+	top: 150px;
+	z-index: 50;
+	width: 620px;
+	margin: 0 auto;
+}
+
+@media only screen and (max-height: 500px), only screen and (max-device-width: 500px)
+{
+	.whoposted_output {
+		top: 25px;
+	}
+}
+
+.whoposted_output .alert_close {
+	display: block;
+	float: right;
+	width: 16px;
+	height: 16px;
+	overflow: hidden;
+	text-decoration: none !important;
+	background: transparent none 0 0 no-repeat;
+	margin-top: -7px;
+	margin-right: -31px;
+}
+.whoposted_output .alert_close:hover {
+	background-position: 0 -16px;
+}
+
+.whoposted_output p {
+	margin: 8px 0;
+	padding-bottom: 8px;
+}
+
+.whoposted_output label {
+	display: block;
+	margin: 8px 0;
+	padding-bottom: 8px;
+}
+
+.whoposted_output div.alert_text > p,
+.whoposted_output div.alert_text > label,
+.whoposted_output div.alert_text > select,
+.whoposted_output div.alert_text > textarea,
+.whoposted_output div.alert_text > input {
+	font-size: 1.1em;
+}
+
+/* Responsive */
+.whoposted_output {
+	width: auto;
+	margin: 0 5px;
+}

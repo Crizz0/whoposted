@@ -99,7 +99,7 @@ class listener implements EventSubscriberInterface
 
 		$this->db->sql_freeresult($result);
 
-		$topic_row['REPLIES'] =  '<a href="#">' . $topic_row['REPLIES'] . '</a>';
+		$topic_row['REPLIES'] =  '<a href="#t=' . $topic_id . '" class="whoposted">' . $topic_row['REPLIES'] . '</a>';
 
 		$event['topic_row'] = $topic_row; 
 	}
